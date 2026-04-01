@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menlo Ave Kingdom Hall — Hall Calendar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:   #1a2744;
+      --gold:   #c9a84c;
+      --cream:  #f7f3ec;
+      --white:  #ffffff;
+      --text:   #2c2c2c;
+      --muted:  #6b7280;
+      --border: rgba(201,168,76,0.25);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201,168,76,0.04) 40px,
+          rgba(201,168,76,0.04) 41px
+        );
+      pointer-events: none;
+    }
+
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 36px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .gold-rule {
+      width: 48px;
+      height: 3px;
+      background: var(--gold);
+      border-radius: 2px;
+      margin-bottom: 4px;
+    }
+
+    .hall-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      line-height: 1.2;
+    }
+
+    .hall-subtitle {
+      font-size: 0.85rem;
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 2px;
+    }
+
+    .address-block {
+      margin-top: 10px;
+      font-size: 0.92rem;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.6;
+    }
+
+    .address-block strong {
+      color: rgba(255,255,255,0.9);
+      font-weight: 600;
+    }
+
+    /* ── LANG TOGGLE ── */
+    .lang-toggle {
+      display: flex;
+      gap: 6px;
+      margin-top: 16px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1px solid rgba(201,168,76,0.5);
+      color: rgba(255,255,255,0.7);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lang-btn.active,
+    .lang-btn:hover {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy);
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    /* ── CALENDAR FRAME ── */
+    .calendar-wrapper {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(26,39,68,0.10), 0 1px 4px rgba(26,39,68,0.06);
+      border: 1px solid var(--border);
+    }
+
+    .calendar-wrapper iframe {
+      display: block;
+      width: 100%;
+      height: 680px;
+      border: none;
+    }
+
+    /* ── INFO STRIP ── */
+    .info-strip {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 560px) {
+      .info-strip { grid-template-columns: 1fr; }
+      .calendar-wrapper iframe { height: 520px; }
+    }
+
+    .info-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 22px;
+      box-shadow: 0 2px 8px rgba(26,39,68,0.05);
+    }
+
+    .info-card .card-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .info-card p {
+      font-size: 0.93rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    .info-card a {
+      color: var(--navy);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      transition: border-color 0.2s;
+    }
+
+    .info-card a:hover {
+      border-color: var(--gold);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 20px 16px 32px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── ANNOUNCEMENT BANNER ── */
+  .announcement {
+    background: var(--navy);
+    border-left: 4px solid var(--gold);
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 8px rgba(26,39,68,0.10);
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+
+  .announcement-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .announcement-text {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.5;
+  }
+
+  .announcement-text strong {
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .announcement-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+
+  /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .header-inner  { animation: fadeUp 0.5s ease both; }
+    .calendar-wrapper { animation: fadeUp 0.5s 0.15s ease both; }
+    .info-strip    { animation: fadeUp 0.5s 0.25s ease both; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="gold-rule"></div>
+
+    <h1 class="hall-name" id="hall-name">Salón del Reino de Menlo Ave</h1>
+    <p class="hall-subtitle" id="hall-subtitle">Calendario del Salón del Reino &nbsp;/&nbsp; Kingdom Hall Calendar</p>
+
+    <div class="address-block">
+      <strong>2821 S. Menlo Ave</strong><br/>
+      Los Angeles, CA 90007
+    </div>
+
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('es')" id="btn-es">Español</button>
+      <button class="lang-btn" onclick="setLang('en')" id="btn-en">English</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="announcement" id="announcement-banner">
+    <div class="announcement-icon">📢</div>
+    <div>
+      <div class="announcement-label" id="announcement-label">— ANUNCIO —</div>
+      <div class="announcement-text" id="announcement-text"></div>
+    </div>
+  </div>
+
+  <div class="calendar-wrapper">
+    <iframe
+      id="cal-frame"
+      src="https://calendar.google.com/calendar/embed?src=e20944de059132415bd6ab07007e4c9028a6d68c9383475326d17949bd2bd476%40group.calendar.google.com&ctz=America%2FLos_Angeles&hl=es&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode=MONTH"
+      title="Hall Calendar"
+      frameborder="0"
+      scrolling="no">
+    </iframe>
+  </div>
+
+  <div class="info-strip">
+    <div class="info-card">
+      <div class="card-label" id="label-request">Solicitar un Evento</div>
+      <p id="text-request">
+        Para agregar un evento al calendario, comuníquese con<br/>
+        <strong>George Abrego</strong>
+      </p>
+    </div>
+    <div class="info-card">
+      <div class="card-label" id="label-address">Ubicación / Location</div>
+      <p>
+        2821 S. Menlo Ave<br/>
+        Los Angeles, CA 90007<br/>
+        <a href="https://maps.google.com/?q=2821+S+Menlo+Ave+Los+Angeles+CA+90007" target="_blank" rel="noopener" id="link-map">Ver en Google Maps</a>
+      </p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span id="footer-text">Salón del Reino · 2821 S. Menlo Ave · Los Angeles, CA 90007</span>
+</footer>
+
+<script>
+  // ── CLEANING SCHEDULE ──
+  const cleaningSchedule = {
+    es: {
+      months: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+      congregations: ['Central','Hoover','Western','Omega','Central','Hoover','Western','Omega','Central','Hoover','Western','Omega'],
+      label: '— ANUNCIO —',
+      text: (month, cong) => `Limpieza para <strong>${month}</strong> está a cargo de <strong>${cong}</strong>`
+    },
+    en: {
+      months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+      congregations: ['Central','Hoover','Western','Omega','Central','Hoover','Western','Omega','Central','Hoover','Western','Omega'],
+      label: '— ANNOUNCEMENT —',
+      text: (month, cong) => `Cleaning for <strong>${month}</strong> is assigned to <strong>${cong}</strong>`
+    }
+  };
+
+  function updateAnnouncement(lang) {
+    const monthIndex = new Date().getMonth();
+    const schedule = cleaningSchedule[lang];
+    document.getElementById('announcement-label').textContent = schedule.label;
+    document.getElementById('announcement-text').innerHTML = schedule.text(
+      schedule.months[monthIndex],
+      schedule.congregations[monthIndex]
+    );
+  }
+
+  // Run on load
+  updateAnnouncement('es');
+
+  const strings = {
+    es: {
+      hallName:     'Salón del Reino de Menlo Ave',
+      subtitle:     'Calendario del Salón del Reino \u00A0/\u00A0 Kingdom Hall Calendar',
+      labelRequest: 'Solicitar un Evento',
+      textRequest:  'Para agregar un evento al calendario, comuníquese con<br/><strong>George Abrego</strong>',
+      labelAddress: 'Ubicación / Location',
+      linkMap:      'Ver en Google Maps',
+      footer:       'Salón del Reino · 2821 S. Menlo Ave · Los Angeles, CA 90007',
+      calLang:      'es'
+    },
+    en: {
+      hallName:     'Menlo Ave Kingdom Hall',
+      subtitle:     'Kingdom Hall Calendar \u00A0/\u00A0 Calendario del Salón del Reino',
+      labelRequest: 'Request an Event',
+      textRequest:  'To add an event to the calendar, please contact<br/><strong>George Abrego</strong>',
+      labelAddress: 'Location / Ubicación',
+      linkMap:      'View on Google Maps',
+      footer:       'Kingdom Hall · 2821 S. Menlo Ave · Los Angeles, CA 90007',
+      calLang:      'en'
+    }
+  };
+
+  let currentLang = 'es';
+
+  function setLang(lang) {
+    if (lang === currentLang) return;
+    currentLang = lang;
+    const s = strings[lang];
+
+    document.getElementById('hall-name').textContent      = s.hallName;
+    document.getElementById('hall-subtitle').textContent  = s.subtitle;
+    document.getElementById('label-request').textContent  = s.labelRequest;
+    document.getElementById('text-request').innerHTML     = s.textRequest;
+    document.getElementById('label-address').textContent  = s.labelAddress;
+    document.getElementById('link-map').textContent       = s.linkMap;
+    document.getElementById('footer-text').textContent    = s.footer;
+
+    document.getElementById('btn-es').classList.toggle('active', lang === 'es');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+    updateAnnouncement(lang);
+
+    // Reload calendar in selected language
+    const frame = document.getElementById('cal-frame');
+    frame.src = frame.src.replace(/&hl=\w+/, '&hl=' + s.calLang);
+  }
+</script>
+
+</body>
+</html>
